@@ -1,0 +1,172 @@
+協調行動分割
+	協調行動が最適でなさすぎるときでも報酬を近づけてしまう
+分割報酬学習
+マージ
+
+sum ある相手のある行動をとる確率×衝突したか　＝　今までの衝突率
+q学習で30％で最適解に収束しない→優先度３が正しく学習できるのは49％→優先度nが正しく学習できるかは
+
+エキスパート特徴の時計回りと反時計回りの差が0.06は小さすぎる
+逆回りのエージェントに限ってなぜか収束
+
+
+
+
+
+
+
+
+
+
+
+
+
+"""
+    def collision_count(self):
+        for i in range(self.N_AGENTS):
+            collision_count = 0
+            for j in range(self.N_AGENTS):
+                if is_collision(self.coop_archive_history[i][i], self.convergence_trajs[j]):
+"""  
+    
+        """collision, compair num count
+            collision_compair[i][j] = [[trajs], [counts]]
+            collision_counts[i][j][1] = [collision_rate, compair_num]
+            selection_count[i] = [[trajs], [count]]
+            selection_count[i][1] = [selection_count]
+            """
+        """
+            if dose_archived:
+                if trajs[i] in self.selection_count[i][0]:
+                    index = self.selection_count[i][0].index(trajs[i])
+                    self.selection_count[i][1][index] += 1
+                else:
+                    self.selection_count[i][0] += [copy.deepcopy(trajs[i])]
+                    self.selection_count[i][1] += [1]
+                #print("selection_count:{}".format(self.selection_count[i]))
+
+                for j in range(self.N_AGENTS):
+                    if i==j:
+                        continue
+                    traj_collision_count = 0
+                    sum_visition_count = 0
+                    compair_num = 0
+                    # 衝突数の計算
+                    for k in range(len(self.coop_archive_history[j][j])):
+                        if self.coop_archive_history[j][j][k] in self.selection_count[j][0]:
+                            index = self.selection_count[j][0].index(self.coop_archive_history[j][j][k])
+                            sum_visition_count += self.selection_count[j][1][index]
+                        else:
+                            index = -1
+                            sum_visition_count += 1
+
+                        if is_collision(trajs[i], self.coop_archive_history[j][j][k]):
+                            if index != -1:
+                                traj_collision_count += self.selection_count[j][1][index]
+                            else:
+                                traj_collision_count += 1
+                        if sum_visition_count!=0:
+                            traj_collision_count /= sum_visition_count
+                        else:
+                            traj_collision_count /= 1
+                    #compair_num += len(self.convergence_trajs[j])
+                    #if compair_num==0:
+                    if len(self.coop_archive_history[j][j])!=0:
+                        compair_num /= len(self.coop_archive_history[j][j])
+                    else:
+                        compair_num = 1
+                    #print("selectioncount:{}".format(sum_visition_count))
+                    #print("collision_count:{}".format(traj_collision_count))
+                    # 衝突数のカウント
+                    if trajs[i] in self.collision_compair_memory[i][j][0]:
+                        index = self.collision_compair_memory[i][j][0].index(trajs[i])
+                        if not trajs[i] in self.prev_collision_compair[i][j][0]:
+                            self.prev_collision_compair[i][j][0] += [copy.deepcopy(self.collision_compair_memory[i][j][0][index])]
+                            self.prev_collision_compair[i][j][1] += [copy.deepcopy(self.collision_compair_memory[i][j][1][index])]
+                        self.collision_compair_memory[i][j][1][index][0] = traj_collision_count
+                        self.collision_compair_memory[i][j][1][index][1] = compair_num
+                    else: # 初めてのtraj
+                        self.prev_collision_compair[i][j][0] += [copy.deepcopy(trajs[i])]
+                        self.prev_collision_compair[i][j][1] += [[0, 1]]
+                        self.collision_compair_memory[i][j][0] += [copy.deepcopy(trajs[i])] 
+                        if compair_num==0:
+                            compair_num = 1
+                        self.collision_compair_memory[i][j][1] += [[traj_collision_count, compair_num]]      
+            """
+        """
+        if dose_archived:
+            for j in range(self.N_AGENTS):
+                if i==j:
+                    continue
+                traj_collision_count = 0
+                compair_num = 0
+                for k in range(len(self.coop_archive_history[j][j])):
+                    if is_collision(trajs[i], self.coop_archive_history[j][j][k]):
+                        traj_collision_count += 1
+                compair_num += len(self.coop_archive_history[j][j])
+                if trajs[i] in self.collision_compair_memory[i][j][0]:
+                    index = self.collision_compair_memory[i][j][0].index(trajs[i])
+                    if not trajs[i] in self.prev_collision_compair[i][j][0]:
+                        self.prev_collision_compair[i][j][0] += [copy.deepcopy(self.collision_compair_memory[i][j][0][index])]
+                        self.prev_collision_compair[i][j][1] += [copy.deepcopy(self.collision_compair_memory[i][j][1][index])]
+                    self.collision_compair_memory[i][j][1][index][0] = self.collision_compair_memory[i][j][1][index][0] + traj_collision_count
+                    self.collision_compair_memory[i][j][1][index][1] = self.collision_compair_memory[i][j][1][index][1] + compair_num
+                    else:
+                    self.prev_collision_compair[i][j][0] += [copy.deepcopy(trajs[i])]
+                    self.prev_collision_compair[i][j][1] += [[0, 1]]
+                    self.collision_compair_memory[i][j][0] += [copy.deepcopy(trajs[i])] 
+                    if compair_num==0:
+                        compair_num = 1
+                    self.collision_compair_memory[i][j][1] += [[traj_collision_count, compair_num]] 
+           
+        if dose_archived:
+            if trajs[i] in self.selection_count[i][0]:
+                index = self.selection_count[i][0].index(trajs[i])
+                self.selection_count[i][1][index] += 1
+            else:
+                self.selection_count[i][0] += [copy.deepcopy(trajs[i])]
+                self.selection_count[i][1] += [1]
+            #print("selection_count:{}".format(self.selection_count[i]))
+                for j in range(self.N_AGENTS):
+                if i==j:
+                    continue
+                    traj_collision_count = 0
+                sum_visition_count = 0
+                compair_num = 0
+                # 衝突数の計算
+                if self.convergence_trajs[j] in self.selection_count[j][0]:
+                    index = self.selection_count[j][0].index(self.convergence_trajs[j])
+                    sum_visition_count += self.selection_count[j][1][index]
+                else:
+                    index = -1
+                    sum_visition_count += 1
+                    if is_collision(trajs[i], self.convergence_trajs[j]):
+                    if index != -1:
+                        traj_collision_count += self.selection_count[j][1][index]
+                    else:
+                        traj_collision_count += 1
+                if sum_visition_count!=0:
+                    traj_collision_count /= sum_visition_count
+                else:
+                    traj_collision_count /= 1
+                #compair_num += len(self.convergence_trajs[j])
+                #if compair_num==0:
+                compair_num=1
+                #print("selectioncount:{}".format(sum_visition_count))
+                #print("collision_count:{}".format(traj_collision_count))
+                # 衝突数のカウント
+                if trajs[i] in self.collision_compair_memory[i][j][0]:
+                    index = self.collision_compair_memory[i][j][0].index(trajs[i])
+                    if not trajs[i] in self.prev_collision_compair[i][j][0]:
+                        self.prev_collision_compair[i][j][0] += [copy.deepcopy(self.collision_compair_memory[i][j][0][index])]
+                        self.prev_collision_compair[i][j][1] += [copy.deepcopy(self.collision_compair_memory[i][j][1][index])]
+                    self.collision_compair_memory[i][j][1][index][0] = traj_collision_count
+                    self.collision_compair_memory[i][j][1][index][1] = compair_num
+                else: # 初めてのtraj
+                    self.prev_collision_compair[i][j][0] += [copy.deepcopy(trajs[i])]
+                    self.prev_collision_compair[i][j][1] += [[0, 1]]
+                    self.collision_compair_memory[i][j][0] += [copy.deepcopy(trajs[i])] 
+                    if compair_num==0:
+                        compair_num = 1
+                    self.collision_compair_memory[i][j][1] += [[traj_collision_count, compair_num]]
+"""
