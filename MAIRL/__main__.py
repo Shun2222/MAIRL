@@ -121,31 +121,7 @@ if __name__ == "__main__":
     """ENV"""
     """
     ENV = "ENV10"
-    N_AGENTS = int(config_ini.get(ENV, "N_AGENTS"))
-    STATE_SIZE = json.loads(config_ini.get(ENV, "STATE_SIZE")) 
-    obstacle = json.loads(config_ini.get(ENV, "OBSTACLE")) 
-    
-    experts = []
-    start_goal_position = []
-    for i in range(N_AGENTS):
-        agent_info = json.loads(config_ini.get(ENV,"AGENT_START_GOAL_EXPERT"+str(i+1)))
-        start_goal_position += [agent_info[0]]
-        experts += [agent_info[1]]
 
-    env = [[] for i in range(N_AGENTS)]
-    for i in range(N_AGENTS):
-        e = [[0]*STATE_SIZE[1] for i in range(STATE_SIZE[0])]
-        e[start_goal_position[i][0][0]][start_goal_position[i][0][1]] = 'S'
-        e[start_goal_position[i][1][0]][start_goal_position[i][1][1]] = 'G'
-        for o in obstacle:
-            if o:
-                e[o[0]][o[1]] = '-1'
-        env[i] = GridWorldEnv(grid=e)
-        print("#################Agent{}#################".format(i))
-        env[i].print_env()
-        if not experts[i][0]:
-            experts[i][0] += env[i].create_expert()
-            print("create expert{}:{}\n".format(i, experts[i][0]))
         """
 
     """Random Env"""
@@ -161,8 +137,7 @@ if __name__ == "__main__":
             experts[i][0] += env[i].create_expert()
             print("create expert{}:{}\n".format(i, experts[i][0]))
        #print(env)
-
-    if ENV=="LOG":
+    elif ENV=="LOG":
         env_file = json.loads(config_ini.get("ENV", "LOG_FILE")) 
         env = pickle_load(env_file)
         N_AGENTS = len(env)
@@ -174,7 +149,33 @@ if __name__ == "__main__":
             env[i].print_env()
             experts[i][0] += env[i].create_expert()
             print("create expert{}:{}\n".format(i, experts[i][0]))   
+    else:
+        N_AGENTS = int(config_ini.get(ENV, "N_AGENTS"))
+        STATE_SIZE = json.loads(config_ini.get(ENV, "STATE_SIZE")) 
+        obstacle = json.loads(config_ini.get(ENV, "OBSTACLE")) 
+        
+        experts = []
+        start_goal_position = []
+        for i in range(N_AGENTS):
+            agent_info = json.loads(config_ini.get(ENV,"AGENT_START_GOAL_EXPERT"+str(i+1)))
+            start_goal_position += [agent_info[0]]
+            experts += [agent_info[1]]
 
+        env = [[] for i in range(N_AGENTS)]
+        for i in range(N_AGENTS):
+            e = [[0]*STATE_SIZE[1] for i in range(STATE_SIZE[0])]
+            e[start_goal_position[i][0][0]][start_goal_position[i][0][1]] = 'S'
+            e[start_goal_position[i][1][0]][start_goal_position[i][1][1]] = 'G'
+            for o in obstacle:
+                if o:
+                    e[o[0]][o[1]] = '-1'
+            env[i] = GridWorldEnv(grid=e)
+            print("#################Agent{}#################".format(i))
+            env[i].print_env()
+            if not experts[i][0]:
+                experts[i][0] += env[i].create_expert()
+                print("create expert{}:{}\n".format(i, experts[i][0]))
+        
     rewards = [[] for i in range(N_AGENTS)]
     irl = MaxEntIRL(env, N_AGENTS, config_ini)
 

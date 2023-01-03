@@ -78,6 +78,7 @@ class Q_learning():
                 if end[i] == True: # goalしてたら何もしない
                     history[i].append(state[i]) # historyに現在の状態を追加
                     self.step[i] += 1
+                    self.step_in_multi[i] += 1
                     break; 
                 act[i] = self.actor(state[i],q_table[i],greedy=True)
                 next_state[i] = self.env[i]._move(state[i],act[i]) # move
