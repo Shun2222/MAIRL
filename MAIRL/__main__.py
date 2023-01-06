@@ -90,10 +90,11 @@ def save(logs, Seed_No, N_ITERS, STATE_SIZE, N_AGENTS, ENV, experts):
     plt.savefig(os.path.join(imageFolder, fileName)) 
     plt.close()
     plot_on_grid(logs["col_count"], [N_AGENTS, N_AGENTS], 'col_count'+'_'+str(Seed_No), imageFolder, set_annot=False)
+    """
     print("making gif now")
     for i in range(N_AGENTS):
         logs["expert_gifs"][i].make(state_size=STATE_SIZE, folder=imageFolder, file_name="expert"+str(i))
-    #logs["traj_gif"].make_test(state_size=STATE_SIZE, folder=imageFolder, file_name="traj")
+    #logs["traj_gif"].make_test(state_size=STATE_SIZE, folder=imageFolder, file_name="traj")"""
     with open(os.path.join(folderName, "logs.pickle"), mode='wb') as f:
         pickle.dump(logs, f)
     print("saved in {}".format(folderName))

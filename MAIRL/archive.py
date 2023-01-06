@@ -17,7 +17,7 @@ class Archive():
     
     def clear_memory(self):
         self.traj_archive = [[] for _ in range(self.N_AGENTS)]
-        self.count_memory = [{} for _ in range(self.N_AGENTS)]
+        self.count_memory = [[{} for _ in range(self.N_AGENTS)] for _ in range(self.N_AGENTS)]
 
     def print_traj_archive(self):
         for i in range(self.N_AGENTS):
@@ -37,7 +37,9 @@ class Archive():
                 self.update_execute_count(i, trajs[i])
             if not trajs[i] in self.traj_archive[i]:
                 self.traj_archive[i] += [copy.deepcopy(trajs[i])]
-                self.opt_traj_archive[i] += [copy.deepcopy(trajs[i])]
+                if trajs[i] not in self.opt_traj_archive[i]:
+                    self.opt_traj_archive[i] += [copy.deepcopy(trajs[i])]
+        #print(f"Is archived? {self.traj_archive}")
         self.count()
         self.traj_archive = [[] for _ in range(self.N_AGENTS)]
 
@@ -59,16 +61,23 @@ class Archive():
         str_traj = array_to_str(traj)
         for j in range(self.N_AGENTS):
             if str_traj in self.count_memory[i][j]:
+                #print("count exec")
                 self.count_memory[i][j][str_traj][2] += 1
             else:
                 self.count_memory[i][j][str_traj] = [0,0,1]
 
     def update_collision_count(self, i, j, traj):
         str_traj = array_to_str(traj)
+        #print(f"col count {self.count_memory[i][j][str_traj][0]}")
         if str_traj in self.count_memory[i][j]:
             self.count_memory[i][j][str_traj][0] += 1
+            #print("Enter col")
+        #print(f"col count {self.count_memory[i][j][str_traj][0]}")
 
     def update_not_collision_count(self, i, j, traj):
         str_traj = array_to_str(traj)
+        #print(f"non col count {self.count_memory[i][j][str_traj][1]}")
         if str_traj in self.count_memory[i][j]:
             self.count_memory[i][j][str_traj][1] += 1
+            #print("Enter non col")
+        #print(f"non col count {self.count_memory[i][j][str_traj][1]}")
