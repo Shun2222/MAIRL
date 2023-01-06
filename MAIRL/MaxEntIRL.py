@@ -30,7 +30,7 @@ class MaxEntIRL():
         self.N_ACTIONS = len(env[0]._actions)  
                     
         self.reward_func = [np.zeros(self.N_STATES) for i in range(self.N_AGENTS)]
-        self.feature_experts = [np.zeros(self.N_STATES) for i in range(self.N_AGENTS)]
+        self.agents = [Agent(i) for i in range(self.N_AGENTS)]
         self.inner_loop = Q_learning(self.env,self.N_AGENTS, config_ini)
     
     """0~1に変換"""
@@ -104,8 +104,8 @@ class MaxEntIRL():
                 min_w = 0.0 if min_w<0.0 else min_w
                 dose_update = True # update or generate
                 alpha = 1-min_w if dose_update else 0.0
-                self.feature_experts[i] = (1-alpha)*self.feature_experts[i] + alpha*traj
-                self.feature_experts[i] = self.normalize(self.feature_experts[i])
+                self.agents[i].feature_expert = (1-alpha)*self.agents[i].feature_expert + alpha*traj
+                self.agents[i].feature_expert = self.normalize(self.agents[i].feature_expert)
 
     def maxent_irl(self, N_STATES, N_ACTIONS, feat_map, experts, lr, GAMMA, n_iters):
 
@@ -114,7 +114,6 @@ class MaxEntIRL():
         theta = [np.zeros((feat_map.shape[1],)) for _ in range(self.N_AGENTS)]
         expert_visition_count = [np.array([np.zeros(self.N_STATES) for _ in range(self.N_AGENTS)]) for _ in range(self.N_AGENTS)]
         trans_probs = [[] for _ in range(self.N_AGENTS)]
-        original_experts = copy.deepcopy(experts)
 
         step_hist = [np.zeros(n_iters) for _ in range(self.N_AGENTS)]
         step_in_multi_hist = [np.zeros(n_iters) for _ in range(self.N_AGENTS)]
@@ -125,12 +124,14 @@ class MaxEntIRL():
 
         for i in range(self.N_AGENTS):
             trans_probs[i] = self.trans_mat(self.env[i]) # 状態遷移map
-        self.feature_experts = [ self.calculate_state_visition_count(experts[i])/len(experts[i]) for i in range(self.N_AGENTS)]
+            self.agents[i].original_expert = copy.deepcopy(experts[I])
+            self.agents[i].feature_expert = self.calculate_state_visition_count(experts[i])/len(experts[i])
+            self.agents[i].status = 'learning'
         
         print("Start learning")
         for iteration in tqdm(range(int(n_iters))): 
             """inner loop"""
-            Qtables = self.inner_loop.q_learning(experts=original_experts, rewards=self.reward_func)    
+            Qtables = self.inner_loop.q_learning(rewards=self.reward_func, agents=self.agents, experts=experts)    
             """learn"""
             #Q値→方策→状態到達頻度確率→エキスパートとの差→報酬修正
             for i in range(self.N_AGENTS): 
@@ -141,7 +142,7 @@ class MaxEntIRL():
                 p_svf = feat_map.T.dot(svf)  
 
                 self.update_expert(); # エキスパート行動の生成
-                grad = self.feature_experts[i] - p_svf
+                grad = self.agents[i].feature_expert - p_svf
                 theta[i] += lr * grad
                 theta[i] = np.round(theta[i], 4)
                 self.reward_func[i] = feat_map.dot(theta[i].T)
@@ -150,7 +151,7 @@ class MaxEntIRL():
             for i in range(self.N_AGENTS):
                 step_hist[i][iteration]= copy.deepcopy(self.inner_loop.step[i])
                 step_in_multi_hist[i][iteration]= copy.deepcopy(self.inner_loop.step_in_multi[i])
-                expert_gifs[i].add_data(self.feature_experts[i])
+                expert_gifs[i].add_data(self.agents[i].feature_expert)
                 sum_col = 0
                 for j in range(self.N_AGENTS):
                     if self.inner_loop.is_col_agents[i][j]:
@@ -165,7 +166,7 @@ class MaxEntIRL():
 
         logs = {
             "rewards" : self.reward_func,
-            "feat_experts" : self.feature_experts,
+            "feat_experts" : [self.agents[i].feature_expert for i in range(self.N_AGENTS)],
             "step_hist" : step_hist,
             "step_in_multi_hist" : step_in_multi_hist,
             "expert_gifs" : expert_gifs,
