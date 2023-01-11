@@ -26,7 +26,7 @@ def save(logs, Seed_No, N_ITERS, STATE_SIZE, N_AGENTS, ENV, experts):
     for i in range(N_AGENTS):
         #step
         plt.figure()
-        plt.plot(np.arange(N_ITERS), logs["step_hist"][i], label="")
+        plt.plot(np.arange(len(logs["step_hist"][i])), logs["step_hist"][i], label="")
         plt.xlabel("iteration")
         plt.ylabel("step")
         fileName = "step"+"_agent"+str(i)+str(Seed_No)+'.png'
@@ -59,7 +59,7 @@ def save(logs, Seed_No, N_ITERS, STATE_SIZE, N_AGENTS, ENV, experts):
     #step in multi env
     plt.figure()
     for i in range(N_AGENTS):
-        plt.plot(np.arange(N_ITERS), logs["step_in_multi_hist"][i], label="Agent"+str(i))
+        plt.plot(np.arange(len(logs["step_in_multi_hist"][i])), logs["step_in_multi_hist"][i], label="Agent"+str(i))
     plt.xlabel("iteration")
     plt.ylabel("step")
     plt.legend(loc='upper right') 
@@ -74,7 +74,7 @@ def save(logs, Seed_No, N_ITERS, STATE_SIZE, N_AGENTS, ENV, experts):
         nex = ite+5 if ite+5<len(m_step) else len(m_step)-1
         ave_step += [np.mean(m_step[pre:nex])]
     plt.figure()
-    plt.plot(np.arange(N_ITERS-1), ave_step)
+    plt.plot(np.arange(len(ave_step)), ave_step)
     plt.xlabel("iteration")
     plt.ylabel("step")
     fileName = "step_in_multi_mean"+"_agent"+str(Seed_No)+'.png'
@@ -82,7 +82,7 @@ def save(logs, Seed_No, N_ITERS, STATE_SIZE, N_AGENTS, ENV, experts):
     plt.close()
     plt.figure()
     for i in range(N_AGENTS):
-        plt.plot(np.arange(N_ITERS), logs["col_greedy"][i], label="Agent"+str(i))
+        plt.plot(np.arange(len(logs["col_greedy"][i])), logs["col_greedy"][i], label="Agent"+str(i))
     plt.xlabel("iteration")
     plt.ylabel("collision num (act greedy)")
     plt.legend(loc='upper right') 

@@ -16,6 +16,7 @@ class Archive():
         print(self.count_memory)
     
     def clear_memory(self):
+        self.opt_traj_archive = [[] for _ in range(self.N_AGENTS)]
         self.traj_archive = [[] for _ in range(self.N_AGENTS)]
         self.count_memory = [[{} for _ in range(self.N_AGENTS)] for _ in range(self.N_AGENTS)]
 
