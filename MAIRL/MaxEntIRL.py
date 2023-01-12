@@ -9,6 +9,7 @@ import sys
 import os
 from pprint import pprint
 import queue
+from .agent import Agent
 from .libs.figure import *
 from .libs.traj_util import *
 
@@ -220,7 +221,7 @@ class MaxEntIRL():
         print("Start learning")
         for iteration in tqdm(range(int(n_iters))): 
             """inner loop"""
-            Qtables = self.inner_loop.q_learning(experts=self.init_experts, rewards=self.reward_func)    
+            Qtables = self.inner_loop.q_learning(experts=experts, rewards=self.reward_func, agents=self.agents)       
             """learn"""
             #Q値→方策→状態到達頻度確率→エキスパートとの差→報酬修正
             for i in range(self.N_AGENTS): 
@@ -231,7 +232,7 @@ class MaxEntIRL():
                 p_svf = feat_map.T.dot(svf)  
 
                 self.update_expert(); # エキスパート行動の生成
-                grad = self.feature_experts[i] - p_svf
+                grad = self.agents[i].feature_expert - p_svf
                 theta[i] += lr * grad
                 theta[i] = np.round(theta[i], 4)
                 self.reward_func[i] = feat_map.dot(theta[i].T)
@@ -239,7 +240,7 @@ class MaxEntIRL():
             for i in range(self.N_AGENTS):
                 step_hist[i].append(copy.deepcopy(self.inner_loop.step[i]))
                 step_in_multi_hist[i].append(copy.deepcopy(self.inner_loop.step_in_multi[i]))
-                expert_gifs[i].add_data(self.feature_experts[i])
+                expert_gifs[i].add_data(copy.deepcopy(self.agents[i].feature_expert))
                 sum_col = 0
                 for j in range(self.N_AGENTS):
                     if self.inner_loop.is_col_agents[i][j]:
