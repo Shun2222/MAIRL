@@ -92,8 +92,12 @@ class Q_learning():
         for i in range(self.N_AGENTS):
             if self.env[i].is_wall_traj(history[i]) or agents[i].status=='not_exist':
                 history[i] = [-1]*self.MAX_STEP
+                self.step[i] = len(history[i])
+                self.step_in_multi[i] = len(history[i])
             if agents[i].status == 'learned':
-                history[i] = agents[i].greedy_act
+                history[i] = copy.deepcopy(agents[i].greedy_act)
+                self.step[i] = len(history[i])
+                self.step_in_multi[i] = len(history[i])
         is_col = is_collision_matrix(history)
         for  i in range(self.N_AGENTS):
             if any(is_col[i]):
@@ -101,8 +105,8 @@ class Q_learning():
         self.is_col_agents = is_col # 環境中にいるエージェントのみで判断すべき
 
         self.traj_gif.add_data(history)
-        print("greedy_state")
-        print(history)
+        #print("greedy_state")
+        #print(history)
 
 
     def run(self, experts=None, agents=None):
@@ -179,7 +183,7 @@ class Q_learning():
                 if self.env[i].is_wall_traj(history[i]) or agents[i].status=='not_exist':
                     history[i] = [-1]*self.MAX_STEP
                 if agents[i].status == 'learned':
-                    history[i] = agents[i].greedy_act
+                    history[i] = copy.deepcopy(agents[i].greedy_act)
             self.archive.archive(history, experts)
 
         self.archive.count()

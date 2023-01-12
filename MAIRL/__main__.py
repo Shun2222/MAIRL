@@ -6,12 +6,15 @@ import configparser
 import pickle
 from colorama import Fore, Back, Style
 
-def save(logs, Seed_No, N_ITERS, STATE_SIZE, N_AGENTS, ENV, experts):
+def save(logs, Seed_No, N_ITERS, STATE_SIZE, N_AGENTS, ENV, experts, save_dir):
     print("Saving datas now.")
     folder = "logs/"+ENV
     if not os.path.exists(folder):
         os.mkdir(folder)
-    folder += "/" + str(datetime.datetime.now().strftime('%Y-%m-%d-%H-%M'))
+    if save_dir=="":
+        folder += "/"+str(datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S'))
+    else:
+        folder += "/"+save_dir
     if not os.path.exists(folder):
         os.mkdir(folder)
     folderName = folder+"/Seed_No" + str(Seed_No)
@@ -138,8 +141,9 @@ if __name__ == "__main__":
             experts[i][0] += env[i].create_expert()
             print("create expert{}:{}\n".format(i, experts[i][0]))
        #print(env)
+
     elif ENV=="LOG":
-        env_file = json.loads(config_ini.get("ENV", "LOG_FILE")) 
+        env_file = json.loads(config_ini.get("LOG", "LOG_FILE")) 
         env = pickle_load(env_file)
         N_AGENTS = len(env)
         STATE_SIZE = env[0].grid.shape
@@ -150,13 +154,13 @@ if __name__ == "__main__":
             env[i].print_env()
             experts[i][0] += env[i].create_expert()
             print("create expert{}:{}\n".format(i, experts[i][0]))   
+
     else:
+        experts = []
+        start_goal_position = []
         N_AGENTS = int(config_ini.get(ENV, "N_AGENTS"))
         STATE_SIZE = json.loads(config_ini.get(ENV, "STATE_SIZE")) 
         obstacle = json.loads(config_ini.get(ENV, "OBSTACLE")) 
-        
-        experts = []
-        start_goal_position = []
         for i in range(N_AGENTS):
             agent_info = json.loads(config_ini.get(ENV,"AGENT_START_GOAL_EXPERT"+str(i+1)))
             start_goal_position += [agent_info[0]]
@@ -188,13 +192,18 @@ if __name__ == "__main__":
     state = [str(i) for i in range(len(env[0].states))]
     
     """学習"""
+    save_dirs = []
     for count in range(N_Seeds):
         seed = Seed_No+count
         print("###### Now " + str(count/N_Seeds) + "% (Seed_No = "+ str(seed)+") ######")
         np.random.seed(seed)
         feat_map = np.eye(irl.N_STATES)    
         logs= irl.maxent_irl(irl.N_STATES,irl.N_STATES,feat_map, experts, LEARNING_RATE, GAMMA, N_ITERS)
-        save_dir = save(logs, seed, N_ITERS, STATE_SIZE, N_AGENTS, ENV, experts)
+        save_dir = json.loads(config_ini.get("LOG", "SAVE_DIR"))
+        save_dir = save(logs, seed, N_ITERS, STATE_SIZE, N_AGENTS, ENV, experts, save_dir)
+        save_dirs.append(save_dir)
 
     with open(os.path.join(save_dir, "env.pickle"), mode='wb') as f:
         pickle.dump(env, f)
+    if N_Seeds!=1:
+        plot_steps_seeds(save_dirs, label="")
