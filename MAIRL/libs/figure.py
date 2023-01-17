@@ -9,6 +9,7 @@ import os
 import numpy as np
 from MAIRL.environment import *
 from MAIRL.libs.traj_util import *
+from MAIRL.libs.data_handle import *
 
 def make_path(save_dir="./", file_name="Non", extension=".png"):
     if not os.path.exists(save_dir):
@@ -161,8 +162,24 @@ class make_gif():
             plt.show() 
         plt.close()        
     
-"""
-from MAIRL.environment import *
-from MAIRL.libs.figure import *
-trajs_plot([[0,1,2],[8,5,4,3,0]], [3,3], show=True)
-"""
+def plot_steps_seeds(save_dirs, label=""):
+    plt.figure()
+    plt.xlabel("iteration")
+    plt.ylabel("step")
+    data = []
+    for d in save_dirs:
+        ave_step = mean_pre_nex(log_file=d+"/logs.pickle", key="step_in_multi_hist")
+        data.append(ave_step)
+    data = np.array(data)
+    m = data.mean(axis=0)
+    std = data.std(axis=0) 
+
+    plt.fill_between(np.arange(len(m)), m+std, m-std, alpha=0.2)
+    plt.plot(np.arange(len(m)), m, label=label)
+
+    fileName = "step_in_multi_mean_seeds"+'.png'
+    if label!="":
+        plt.legend()
+    plt.savefig(save_dirs[0]+"/"+fileName) 
+    plt.close()
+

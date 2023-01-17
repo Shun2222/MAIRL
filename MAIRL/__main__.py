@@ -6,12 +6,15 @@ import configparser
 import pickle
 from colorama import Fore, Back, Style
 
-def save(logs, Seed_No, N_ITERS, STATE_SIZE, N_AGENTS, ENV, experts):
+def save(logs, Seed_No, N_ITERS, STATE_SIZE, N_AGENTS, ENV, experts, save_dir):
     print("Saving datas now.")
     folder = "logs/"+ENV
     if not os.path.exists(folder):
         os.mkdir(folder)
-    folder += "/" + str(datetime.datetime.now().strftime('%Y-%m-%d-%H-%M'))
+    if save_dir=="":
+        folder += "/"+str(datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S'))
+    else:
+        folder += "/"+save_dir
     if not os.path.exists(folder):
         os.mkdir(folder)
     folderName = folder+"/Seed_No" + str(Seed_No)
@@ -26,7 +29,7 @@ def save(logs, Seed_No, N_ITERS, STATE_SIZE, N_AGENTS, ENV, experts):
     for i in range(N_AGENTS):
         #step
         plt.figure()
-        plt.plot(np.arange(N_ITERS), logs["step_hist"][i], label="")
+        plt.plot(np.arange(len(logs["step_hist"][i])), logs["step_hist"][i], label="")
         plt.xlabel("iteration")
         plt.ylabel("step")
         fileName = "step"+"_agent"+str(i)+str(Seed_No)+'.png'
@@ -59,7 +62,7 @@ def save(logs, Seed_No, N_ITERS, STATE_SIZE, N_AGENTS, ENV, experts):
     #step in multi env
     plt.figure()
     for i in range(N_AGENTS):
-        plt.plot(np.arange(N_ITERS), logs["step_in_multi_hist"][i], label="Agent"+str(i))
+        plt.plot(np.arange(len(logs["step_in_multi_hist"][i])), logs["step_in_multi_hist"][i], label="Agent"+str(i))
     plt.xlabel("iteration")
     plt.ylabel("step")
     plt.legend(loc='upper right') 
@@ -74,7 +77,7 @@ def save(logs, Seed_No, N_ITERS, STATE_SIZE, N_AGENTS, ENV, experts):
         nex = ite+5 if ite+5<len(m_step) else len(m_step)-1
         ave_step += [np.mean(m_step[pre:nex])]
     plt.figure()
-    plt.plot(np.arange(N_ITERS-1), ave_step)
+    plt.plot(np.arange(len(ave_step)), ave_step)
     plt.xlabel("iteration")
     plt.ylabel("step")
     fileName = "step_in_multi_mean"+"_agent"+str(Seed_No)+'.png'
@@ -82,7 +85,7 @@ def save(logs, Seed_No, N_ITERS, STATE_SIZE, N_AGENTS, ENV, experts):
     plt.close()
     plt.figure()
     for i in range(N_AGENTS):
-        plt.plot(np.arange(N_ITERS), logs["col_greedy"][i], label="Agent"+str(i))
+        plt.plot(np.arange(len(logs["col_greedy"][i])), logs["col_greedy"][i], label="Agent"+str(i))
     plt.xlabel("iteration")
     plt.ylabel("collision num (act greedy)")
     plt.legend(loc='upper right') 
@@ -90,10 +93,11 @@ def save(logs, Seed_No, N_ITERS, STATE_SIZE, N_AGENTS, ENV, experts):
     plt.savefig(os.path.join(imageFolder, fileName)) 
     plt.close()
     plot_on_grid(logs["col_count"], [N_AGENTS, N_AGENTS], 'col_count'+'_'+str(Seed_No), imageFolder, set_annot=False)
+    """
     print("making gif now")
     for i in range(N_AGENTS):
         logs["expert_gifs"][i].make(state_size=STATE_SIZE, folder=imageFolder, file_name="expert"+str(i))
-    #logs["traj_gif"].make_test(state_size=STATE_SIZE, folder=imageFolder, file_name="traj")
+    #logs["traj_gif"].make_test(state_size=STATE_SIZE, folder=imageFolder, file_name="traj")"""
     with open(os.path.join(folderName, "logs.pickle"), mode='wb') as f:
         pickle.dump(logs, f)
     print("saved in {}".format(folderName))
@@ -121,31 +125,7 @@ if __name__ == "__main__":
     """ENV"""
     """
     ENV = "ENV10"
-    N_AGENTS = int(config_ini.get(ENV, "N_AGENTS"))
-    STATE_SIZE = json.loads(config_ini.get(ENV, "STATE_SIZE")) 
-    obstacle = json.loads(config_ini.get(ENV, "OBSTACLE")) 
-    
-    experts = []
-    start_goal_position = []
-    for i in range(N_AGENTS):
-        agent_info = json.loads(config_ini.get(ENV,"AGENT_START_GOAL_EXPERT"+str(i+1)))
-        start_goal_position += [agent_info[0]]
-        experts += [agent_info[1]]
 
-    env = [[] for i in range(N_AGENTS)]
-    for i in range(N_AGENTS):
-        e = [[0]*STATE_SIZE[1] for i in range(STATE_SIZE[0])]
-        e[start_goal_position[i][0][0]][start_goal_position[i][0][1]] = 'S'
-        e[start_goal_position[i][1][0]][start_goal_position[i][1][1]] = 'G'
-        for o in obstacle:
-            if o:
-                e[o[0]][o[1]] = '-1'
-        env[i] = GridWorldEnv(grid=e)
-        print("#################Agent{}#################".format(i))
-        env[i].print_env()
-        if not experts[i][0]:
-            experts[i][0] += env[i].create_expert()
-            print("create expert{}:{}\n".format(i, experts[i][0]))
         """
 
     """Random Env"""
@@ -162,8 +142,8 @@ if __name__ == "__main__":
             print("create expert{}:{}\n".format(i, experts[i][0]))
        #print(env)
 
-    if ENV=="LOG":
-        env_file = json.loads(config_ini.get("ENV", "LOG_FILE")) 
+    elif ENV=="LOG":
+        env_file = json.loads(config_ini.get("LOG", "LOG_FILE")) 
         env = pickle_load(env_file)
         N_AGENTS = len(env)
         STATE_SIZE = env[0].grid.shape
@@ -175,6 +155,32 @@ if __name__ == "__main__":
             experts[i][0] += env[i].create_expert()
             print("create expert{}:{}\n".format(i, experts[i][0]))   
 
+    else:
+        experts = []
+        start_goal_position = []
+        N_AGENTS = int(config_ini.get(ENV, "N_AGENTS"))
+        STATE_SIZE = json.loads(config_ini.get(ENV, "STATE_SIZE")) 
+        obstacle = json.loads(config_ini.get(ENV, "OBSTACLE")) 
+        for i in range(N_AGENTS):
+            agent_info = json.loads(config_ini.get(ENV,"AGENT_START_GOAL_EXPERT"+str(i+1)))
+            start_goal_position += [agent_info[0]]
+            experts += [agent_info[1]]
+
+        env = [[] for i in range(N_AGENTS)]
+        for i in range(N_AGENTS):
+            e = [[0]*STATE_SIZE[1] for i in range(STATE_SIZE[0])]
+            e[start_goal_position[i][0][0]][start_goal_position[i][0][1]] = 'S'
+            e[start_goal_position[i][1][0]][start_goal_position[i][1][1]] = 'G'
+            for o in obstacle:
+                if o:
+                    e[o[0]][o[1]] = '-1'
+            env[i] = GridWorldEnv(grid=e)
+            print("#################Agent{}#################".format(i))
+            env[i].print_env()
+            if not experts[i][0]:
+                experts[i][0] += env[i].create_expert()
+                print("create expert{}:{}\n".format(i, experts[i][0]))
+        
     rewards = [[] for i in range(N_AGENTS)]
     irl = MaxEntIRL(env, N_AGENTS, config_ini)
 
@@ -186,13 +192,18 @@ if __name__ == "__main__":
     state = [str(i) for i in range(len(env[0].states))]
     
     """学習"""
+    save_dirs = []
     for count in range(N_Seeds):
         seed = Seed_No+count
         print("###### Now " + str(count/N_Seeds) + "% (Seed_No = "+ str(seed)+") ######")
         np.random.seed(seed)
         feat_map = np.eye(irl.N_STATES)    
         logs= irl.maxent_irl(irl.N_STATES,irl.N_STATES,feat_map, experts, LEARNING_RATE, GAMMA, N_ITERS)
-        save_dir = save(logs, seed, N_ITERS, STATE_SIZE, N_AGENTS, ENV, experts)
+        save_dir = json.loads(config_ini.get("LOG", "SAVE_DIR"))
+        save_dir = save(logs, seed, N_ITERS, STATE_SIZE, N_AGENTS, ENV, experts, save_dir)
+        save_dirs.append(save_dir)
 
     with open(os.path.join(save_dir, "env.pickle"), mode='wb') as f:
         pickle.dump(env, f)
+    if N_Seeds!=1:
+        plot_steps_seeds(save_dirs, label="")
