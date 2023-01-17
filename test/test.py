@@ -1,19 +1,41 @@
-import numpy as np
-import pandas as pd
-import json
-import configparser
+from MAIRL import *
+def run():
+    dir=[
+    "Free-order",
+    "Free-no-order",
+    "Min-col-rate"
+    ]
 
+    seed = 12
+    N_seed = 10
 
-def test():
-    config_ini = configparser.ConfigParser()
-    config_ini.optionxform = str
-    config_ini.read('./config/config.ini', encoding='utf-8')
-    N_AGENTS = int(config_ini.get("ENV1", "N_AGENTS"))
-    trajs = []
-    start_goal_position = []
-    for i in range(N_AGENTS):
-        agent_info = json.loads(config_ini.get("ENV1","AGENT_START_GOAL_EXPERT"+str(i+1)))
-        start_goal_position += [agent_info[0]]
-        trajs += [agent_info[1]]
-    print(start_goal_position)
-    print(trajs)
+    file="logs/"
+    plt.figure()
+    plt.xlabel("iteration")
+    plt.ylabel("step")
+    al=0
+    for d in dir:
+        data = []
+        for i in range(seed, seed+N_seed):
+            fileDir = file+d+"/Seed_No"+str(i)+"/logs.pickle"
+            log = pickle_load(fileDir)
+            step = log["step_in_multi_hist"]
+            m_step = np.mean(step, axis=0)[1:]
+            ave_step = []
+            for ite in np.arange(len(m_step)):
+                pre = ite-5 if ite-5>=0 else 0
+                nex = ite+5 if ite+5<len(m_step) else len(m_step)-1
+                ave_step += [np.mean(m_step[pre:nex])]
+            data.append(ave_step)
+        data = np.array(data)
+        m = data.mean(axis=0)
+        std = data.std(axis=0)  
+        plt.fill_between(np.arange(len(ave_step)), m+std, m-std, alpha=0.2)
+        plt.plot(np.arange(len(ave_step)), m, label=d)
+        al+=1
+
+    fileName = "step_in_multi_mean"+'.png'
+    plt.legend()
+    plt.savefig(fileName) 
+    plt.close()
+    print('Saved image')
