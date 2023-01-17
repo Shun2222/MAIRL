@@ -102,7 +102,7 @@ class Q_learning():
         for  i in range(self.N_AGENTS):
             if any(is_col[i]):
                 self.step_in_multi[i] = self.MAX_STEP
-        self.is_col_agents = is_col # 環境中にいるエージェントのみで判断すべき
+        self.is_col_agents = is_col # 環境中にいるエージェントのみで判断すべき?
 
         self.traj_gif.add_data(history)
         #print("greedy_state")
@@ -139,21 +139,25 @@ class Q_learning():
                     act[i] = self.actor(state[i],q_table[i]) # actの獲得
                     next_state[i] = self.env[i]._move(state[i],act[i]) # move
                     end[i] = self.env[i].has_done(next_state[i]) # goalについたか？
-                    reward[i] = self.env[i].get_reward(next_state[i]) # 即時報酬
                     history[i].append(state[i]) # historyに現在の状態を追加
+                    reward[i] = self.env[i].get_reward(next_state[i]) # 即時報酬
                     self.step[i] += 1
-                    if self.bool_get_reward(next_state[i], history[i]): # はじめて訪れるなら即時報酬は０
-                        reward[i] = 0
+                    if self.bool_get_reward(next_state[i], history[i]): # すでに訪れていた場合
+                        reward[i] = 0.0
                               
                
                 """Q値の更新"""
                 for i in range(self.N_AGENTS): # 各エージェントについて
                     if goalFlag[i] == True or agents[i].status != 'learning': # goalしてたら何もしない
                         continue
+                    if self.bool_get_reward(next_state[i], history[i]):
+                        state[i] = next_state[i]
+                        continue
                     q_predict = q_table[i][state[i]][act[i]] # 将来の報酬期待値
                     if end[i] and not goalFlag[i]: # endであり、フィニッシュではない(ゴールして最後の更新)
-                       q_target = reward[i] + self.LAMBDA * max(q_table[i][next_state[i]]) # gain なぜ＋１
-                       q_table[i][state[i]][act[i]] += self.ALPHA * (q_target - (q_predict)) # 学習
+                       #q_target = reward[i] + self.LAMBDA * max(q_table[i][next_state[i]]) # gain なぜ＋１
+                       #q_table[i][state[i]][act[i]] += self.ALPHA * (q_target - (q_predict)) # 学習
+                       q_table[i][state[i]][act[i]] = reward[i]
                        state[i] = next_state[i] # 状態の更新
                        if not goalFlag[i]: # goalしていなかったら
                             history[i].append(next_state[i]) # historyに次状態を追加
@@ -164,7 +168,7 @@ class Q_learning():
                             #if self.env[i].is_wall(n_s):
                             #    reward[i] = self.env[i].get_reward(n_s)
                             #else:
-                            reward[i] = np.min(self.RewardFunc[i])
+                            reward[i] = 0.0#np.min(self.RewardFunc[i])
                         q_target = reward[i] + self.LAMBDA * max(q_table[i][next_state[i]]) # gain
                         q_table[i][state[i]][act[i]] += self.ALPHA * (q_target - (q_predict)) # 学習
                         state[i] = next_state[i] # 現在状態を更新

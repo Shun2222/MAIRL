@@ -72,7 +72,7 @@ class Archive():
         if str_traj in self.count_memory[i][j]:
             self.count_memory[i][j][str_traj][0] += 1
             #print("Enter col")
-        #print(f"col count {self.count_memory[i][j][str_traj][0]}")
+        #print(f"col count{i}{j} {self.count_memory[i][j][str_traj][0]}")
 
     def update_not_collision_count(self, i, j, traj):
         str_traj = array_to_str(traj)
@@ -80,4 +80,4 @@ class Archive():
         if str_traj in self.count_memory[i][j]:
             self.count_memory[i][j][str_traj][1] += 1
             #print("Enter non col")
-        #print(f"non col count {self.count_memory[i][j][str_traj][1]}")
+        #print(f"non col count{i}{j} {self.count_memory[i][j][str_traj][1]}")
