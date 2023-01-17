@@ -201,3 +201,4 @@ def create_my_env(state_size):
         act_right = False if act_right else True
     agents.append([[0, 0], [state_size[0]-1,state_size[1]-1], expert])
     return agents
+
