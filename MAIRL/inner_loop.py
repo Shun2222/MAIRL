@@ -150,10 +150,14 @@ class Q_learning():
                 for i in range(self.N_AGENTS): # 各エージェントについて
                     if goalFlag[i] == True or agents[i].status != 'learning': # goalしてたら何もしない
                         continue
+                    if self.bool_get_reward(next_state[i], history[i]):
+                        state[i] = next_state[i]
+                        continue
                     q_predict = q_table[i][state[i]][act[i]] # 将来の報酬期待値
                     if end[i] and not goalFlag[i]: # endであり、フィニッシュではない(ゴールして最後の更新)
-                       q_target = reward[i] + self.LAMBDA * max(q_table[i][next_state[i]]) # gain なぜ＋１
-                       q_table[i][state[i]][act[i]] += self.ALPHA * (q_target - (q_predict)) # 学習
+                       #q_target = reward[i] + self.LAMBDA * max(q_table[i][next_state[i]]) # gain なぜ＋１
+                       #q_table[i][state[i]][act[i]] += self.ALPHA * (q_target - (q_predict)) # 学習
+                       q_table[i][state[i]][act[i]] = reward[i]
                        state[i] = next_state[i] # 状態の更新
                        if not goalFlag[i]: # goalしていなかったら
                             history[i].append(next_state[i]) # historyに次状態を追加
