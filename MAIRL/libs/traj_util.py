@@ -4,9 +4,20 @@ import numpy as np
 def has_duplicates(seq):
     return len(seq) != len(set(seq)) # setが重複を許さないためseqに重複があればsetは小さくなる
     
+def exist_traj(traj, n):
+    t = np.ones(n)*traj[-1]
+    for i in range(len(traj)):
+        t[i] = traj[i]
+    return t
+
 def is_collision(traj1, traj2):
     if not traj2 or not traj1:
         return False
+    if len(traj1)!=len(traj2):
+        if len(traj1)<len(traj2):
+            traj1 = exist_traj(traj1, len(traj2))
+        else:
+            traj2 = exist_traj(traj2, len(traj1))
     min_len = min([len(traj1), len(traj2)])
     np_traj1 = np.array(traj1)
     np_traj2 = np.array(traj2)

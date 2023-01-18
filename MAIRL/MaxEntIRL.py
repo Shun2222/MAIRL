@@ -237,7 +237,7 @@ class MaxEntIRL():
                 svf = self.compute_state_visition_freq(trans_probs[i], experts[i], policy) 
                 p_svf = feat_map.T.dot(svf)  
 
-                self.update_expert(use_rank=False, update_rate=1.0); # エキスパート行動の生成
+                self.update_expert(use_rank=False, update_rate=0.2); # エキスパート行動の生成
                 grad = self.agents[i].feature_expert - p_svf
                 theta[i] += lr * grad
                 theta[i] = np.round(theta[i], 4)
