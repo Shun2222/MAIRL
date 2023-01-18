@@ -240,6 +240,8 @@ class MaxEntIRL():
                 self.update_expert(update_rate=1.0); # エキスパート行動の生成
                 grad = self.agents[i].feature_expert - p_svf
                 theta[i] += lr * grad
+
+                
                 theta[i] = np.round(theta[i], 4)
                 self.reward_func[i] = feat_map.dot(theta[i].T)
 
