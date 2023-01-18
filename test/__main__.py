@@ -4,7 +4,7 @@ import json
 import configparser
 
 #from test.print_traj_info import *
-from test.test import *
+from test.make_gif import *
 
 if __name__=='__main__':
 	run()
