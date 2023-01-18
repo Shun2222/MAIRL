@@ -11,7 +11,7 @@ def run():
     seed = 12
     N_seed = 10
 
-    file="logs/ENV10/"
+    file=r"D:\graduation\graduation_datas\cycle_env/Min-col-rate/"
     plt.figure()
     plt.xlabel("iteration")
     plt.ylabel("step")
@@ -36,7 +36,7 @@ def run():
         plt.plot(np.arange(len(ave_step)), m, label=d)
         al+=1
 
-    fileName = "step_in_multi_mean"+'.png'
+    fileName = file+"step_in_multi_mean"+'.png'
     plt.legend()
     plt.savefig(fileName) 
     plt.close()
