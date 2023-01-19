@@ -1,15 +1,14 @@
 from MAIRL import *
 def run():
     dir=[
-    "Free-order",
     "Free-no-order",
-    "Min-col-rate"
+    "Min-col-rate",
     ]
 
     seed = 12
-    N_seed = 10
+    N_seed = 25
 
-    file="logs/"
+    file=r"D:\graduation\graduation_datas\large-cycle\SumExpert/"
     plt.figure()
     plt.xlabel("iteration")
     plt.ylabel("step")
@@ -34,7 +33,7 @@ def run():
         plt.plot(np.arange(len(ave_step)), m, label=d)
         al+=1
 
-    fileName = "step_in_multi_mean"+'.png'
+    fileName = file+"/step_in_multi_mean"+'.png'
     plt.legend()
     plt.savefig(fileName) 
     plt.close()

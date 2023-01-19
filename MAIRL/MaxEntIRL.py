@@ -102,10 +102,13 @@ class MaxEntIRL():
             non_col = 0
             non_col_rate = 0.0
             for i in range(self.N_AGENTS):
+                if agent_num==i:
+                    continue
                 if count_memory[agent_num][i][str_traj]:
-                    col += count_memory[agent_num][i][str_traj][0]
-                    non_col += count_memory[agent_num][i][str_traj][1]
-            non_col_rate = non_col/(col+non_col) if col+non_col!=0 else 1.0
+                    col = count_memory[agent_num][i][str_traj][0]
+                    non_col = count_memory[agent_num][i][str_traj][1]
+                    non_col_rate += non_col/(col+non_col) if col+non_col!=0 else 1.0
+            non_col_rate /= self.N_AGENTS
             if not max_col:
                 max_col = non_col_rate
                 traj = str_to_array(str_traj)
@@ -144,9 +147,10 @@ class MaxEntIRL():
             non_col_rate = 0.0
             for i in lower_rank:
                 if count_memory[agent_num][i][str_traj]:
-                    col += count_memory[agent_num][i][str_traj][0]
-                    non_col += count_memory[agent_num][i][str_traj][1]
-            non_col_rate = non_col/(col+non_col) if col+non_col!=0 else 1.0
+                    col = count_memory[agent_num][i][str_traj][0]
+                    non_col = count_memory[agent_num][i][str_traj][1]
+                    non_col_rate += non_col/(col+non_col) if col+non_col!=0 else 1.0
+            non_col_rate /= self.N_AGENTS
             if not max_col:
                 max_col = non_col_rate
                 traj = str_to_array(str_traj)
@@ -236,7 +240,7 @@ class MaxEntIRL():
                 svf = self.compute_state_visition_freq(trans_probs[i], experts[i], policy) 
                 p_svf = feat_map.T.dot(svf)  
 
-                self.update_expert(use_rank=False, update_rate=0.2); # エキスパート行動の生成
+                self.update_expert(use_rank=False, update_rate=1.0); # エキスパート行動の生成
                 grad = self.agents[i].feature_expert - p_svf
                 theta[i] += lr * grad
                 theta[i] = np.round(theta[i], 4)
