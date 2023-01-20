@@ -34,6 +34,15 @@ def plot_on_grid(values, state_size, file_name="Non", folder="./", set_annot=Tru
     plt.close()
     return img
 
+def ax_heatmap(values, state_size, ax, set_annot=True, cbar=True, square=True, label_size=6, title=""):
+    values = np.array(values)
+    if len(values.shape) < 2:
+        values = values.reshape(state_size)
+    sns.heatmap(values, ax=ax, annot=set_annot,cbar=cbar,square=square,cmap='PuRd')  
+    ax.tick_params(axis='x', labelsize=label_size)
+    ax.tick_params(axis='y', labelsize=label_size)
+    ax.set_title(title)
+
 def arrow_plot(data, actions, state_size, file_name="Non", folder="./", save=True, show=False, title=""):
     data = np.array(data)
     if len(data.shape) < 2:

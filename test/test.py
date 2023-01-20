@@ -3,6 +3,7 @@ def run():
     dir=[
     "Free-no-order",
     "Min-col-rate",
+    "Min-col-rate-prop",
     ]
 
     seed = 12
@@ -15,6 +16,7 @@ def run():
     al=0
     for d in dir:
         data = []
+        print(f"Loading data in {d} now")
         for i in range(seed, seed+N_seed):
             fileDir = file+d+"/Seed_No"+str(i)+"/logs.pickle"
             log = pickle_load(fileDir)

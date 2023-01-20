@@ -21,8 +21,3 @@ def run():
             steps = logs["step_in_multi_hist"]
             m_step = np.mean(steps, axis=0)[1:]
             m_all_step = np.mean(m_step)
-            x.append(i)
-            y.append(m_all_step)
-    plt.xticks(np.arange(seed, seed+N_seed, step=1))
-    plt.bar(x, y)
-    plt.show()
