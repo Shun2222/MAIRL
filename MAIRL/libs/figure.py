@@ -158,6 +158,7 @@ class make_gif():
                     y, x = divmod(s, state_size[1])
                     ax.arrow(x+0.5, state_size[0]-1-y+0.5, a[1]*0.3, -a[0]*0.3, color=colorVal, head_width=0.2, head_length=0.2)
 
+
         fms = len(self.datas) if len(self.datas)<=128 else np.linspace(0, len(self.datas)-1, 128).astype(int)
         fig, ax = plt.subplots(nrows=1, ncols=1, figsize = [8,8])
         cmap = plt.cm.jet
@@ -192,3 +193,39 @@ def plot_steps_seeds(save_dirs, label=""):
     plt.savefig(save_dirs[0]+"/"+fileName) 
     plt.close()
 
+
+def heatmap_gif(datas, state_size, feature=False, labels=None, folder="./", file_name="Non", save=True, show=False):
+    def make_heatmap(i):
+        print(f"{i+1}/{fms}")
+        for j in range(len(datas[-1])):
+            ax = fig.add_subplot(fig_size[0], fig_size[1], j+1)
+            ax.cla()
+            if labels:
+                ax.set_title(labels[i])
+            else:
+                ax.set_title(str(i))
+            data = np.array(datas[i][j])
+            if not feature:
+                data = calc_state_visition_count(n_state, [data])
+            if len(data.shape) < 2:
+                data = data.reshape(state_size)
+            sns.heatmap(data, ax=ax, cbar=False, square=True, annot=False)
+            ax.axis('off')
+
+    print(f"{len(datas[-1])} <= n*m")
+    s = input("n,m = ").split(",")
+    fig_size = [int(s[0]), int(s[1])]
+    n_state = state_size[0]*state_size[1]
+    fms = len(datas) if len(datas)<=128 else np.linspace(0, len(datas)-1, 128).astype(int)
+    
+    plt.axis('off')
+    fig= plt.figure()
+    plt.subplots_adjust(wspace=0.4, hspace=0.4, right=0.9, left=0.1, top=0.9, bottom=0.1)
+    plt.axis('off')
+    ani = animation.FuncAnimation(fig=fig, func=make_heatmap, frames=fms, interval=500, blit=False)
+    if save:
+        file_path = make_path(folder, file_name, extension=".gif")
+        ani.save(file_path, writer="pillow")
+    if show:
+        plt.show() 
+    plt.close()
