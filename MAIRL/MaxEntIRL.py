@@ -144,12 +144,13 @@ class MaxEntIRL():
             str_traj = array_to_str(t)
             col = 0
             non_col = 0
-            non_col_rate = 0.0
+            non_col_rate = 1.0
             for i in lower_rank:
                 if count_memory[agent_num][i][str_traj]:
                     col = count_memory[agent_num][i][str_traj][0]
                     non_col = count_memory[agent_num][i][str_traj][1]
-                    non_col_rate += non_col/(col+non_col) if col+non_col!=0 else 1.0
+                    r = non_col/(col+non_col) if col+non_col!=0 else 1.0
+                    non_col_rate *= r
             non_col_rate /= self.N_AGENTS
             if not max_col:
                 max_col = non_col_rate
@@ -158,7 +159,6 @@ class MaxEntIRL():
                 if max_col < non_col_rate:
                     max_col = non_col_rate
                     traj = str_to_array(str_traj)
-        #print(f'max_col traj {max_col}:{traj}')
         self.agents[agent_num].best_traj = copy.deepcopy(traj)
         feature = self.calculate_state_visition_count([traj])
         return feature
