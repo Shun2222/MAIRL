@@ -100,15 +100,12 @@ class MaxEntIRL():
             str_traj = array_to_str(t)
             col = 0
             non_col = 0
-            non_col_rate = 0.0
+            non_col_rate = 1.0
             for i in range(self.N_AGENTS):
-                if agent_num==i:
-                    continue
                 if count_memory[agent_num][i][str_traj]:
                     col = count_memory[agent_num][i][str_traj][0]
                     non_col = count_memory[agent_num][i][str_traj][1]
-                    non_col_rate += non_col/(col+non_col) if col+non_col!=0 else 1.0
-            non_col_rate /= self.N_AGENTS
+                    non_col_rate *= non_col/(col+non_col) if col+non_col!=0 else 1.0
             if not max_col:
                 max_col = non_col_rate
                 traj = str_to_array(str_traj)
@@ -116,6 +113,49 @@ class MaxEntIRL():
                 if max_col < non_col_rate:
                     max_col = non_col_rate
                     traj = str_to_array(str_traj)
+        self.agents[agent_num].best_traj = copy.deepcopy(traj)
+        feature = self.calculate_state_visition_count([traj])
+        return feature
+
+    def merge_feature_relevance_by_rank(self, agent_num, relevance):
+        count_memory = self.inner_loop.archive.count_memory
+        opt_traj_archive = self.inner_loop.archive.opt_traj_archive
+
+        rank = self.create_rank()
+        if agent_num==rank[0] or not opt_traj_archive[agent_num]:
+            feature = self.calculate_state_visition_count(self.agents[agent_num].original_expert)/len(self.agents[agent_num].original_expert)
+            return feature
+
+
+        i = 0
+        lower_rank = []
+        while True:
+            if agent_num==rank[i]:
+                break
+            lower_rank.append(rank[i])
+            i += 1
+
+        max_col = None
+        traj = None
+        for t in opt_traj_archive[agent_num]:
+            str_traj = array_to_str(t)
+            col = 0
+            non_col = 0
+            non_col_rate = 1.0
+            for i in lower_rank:
+                if count_memory[agent_num][i][str_traj]:
+                    col = count_memory[agent_num][i][str_traj][0]
+                    non_col = count_memory[agent_num][i][str_traj][1]
+                    non_col_rate += relevance[agent_num][i] * (non_col/(col+non_col)) if col+non_col!=0 else 1.0
+            non_col_rate = non_col_rate/np.sum(relevance[agent_num]) if np.sum(relevance[agent_num])!=0 else 1.0
+            if not max_col:
+                max_col = non_col_rate
+                traj = str_to_array(str_traj)
+            else:
+                if max_col < non_col_rate:
+                    max_col = non_col_rate
+                    traj = str_to_array(str_traj)
+        #print(f'max_col traj {max_col}:{traj}')
         self.agents[agent_num].best_traj = copy.deepcopy(traj)
         feature = self.calculate_state_visition_count([traj])
         return feature
@@ -154,60 +194,14 @@ class MaxEntIRL():
         feature = self.calculate_state_visition_count([traj])
         return feature
 
-    def merge_feature_by_rank(self, agent_num):
-        count_memory = self.inner_loop.archive.count_memory
-        opt_traj_archive = self.inner_loop.archive.opt_traj_archive
-
-        rank = self.create_rank()
-        if agent_num==rank[0] or not opt_traj_archive[agent_num]:
-            feature = self.calculate_state_visition_count(self.agents[agent_num].original_expert)/len(self.agents[agent_num].original_expert)
-            return feature
-
-
-        i = 0
-        lower_rank = []
-        while True:
-            if agent_num==rank[i]:
-                break
-            lower_rank.append(rank[i])
-            i += 1
-
-        max_col = None
-        traj = None
-        for t in opt_traj_archive[agent_num]:
-            str_traj = array_to_str(t)
-            col = 0
-            non_col = 0
-            non_col_rate = 0.0
-            for i in lower_rank:
-                if count_memory[agent_num][i][str_traj]:
-                    col = count_memory[agent_num][i][str_traj][0]
-                    non_col = count_memory[agent_num][i][str_traj][1]
-                    non_col_rate += non_col/(col+non_col) if col+non_col!=0 else 1.0
-            non_col_rate /= self.N_AGENTS
-            if not max_col:
-                max_col = non_col_rate
-                traj = str_to_array(str_traj)
-            else:
-                if max_col < non_col_rate:
-                    max_col = non_col_rate
-                    traj = str_to_array(str_traj)
-        #print(f'max_col traj {max_col}:{traj}')
-        self.agents[agent_num].best_traj = copy.deepcopy(traj)
-        feature = self.calculate_state_visition_count([traj])
-        return feature
-
     def update_expert(self, relevance=None, use_rank=True, update_rate=None):
         features = []
         if use_rank:
             for i in range(self.N_AGENTS):
-                features.append(self.merge_feature_by_rank(i))
-        elif relevance:
-            for i in range(self.N_AGENTS):
-                features.append(self.merge_feature_relevance(i, relevance))
+                features.append(self.merge_feature_relevance_by_rank(i, relevance))
         else:
             for i in range(self.N_AGENTS):
-                features.append(self.merge_feature(i))
+                features.append(self.merge_feature_relevance(i, relevance))
                 
         if update_rate!=None:
             for i in range(self.N_AGENTS):
@@ -263,6 +257,7 @@ class MaxEntIRL():
         agent_memory = []
         col_count = [np.zeros(self.N_AGENTS) for _ in range(self.N_AGENTS)]
         col_greedy = [[] for _ in range(self.N_AGENTS)]
+        rank_hist = []
 
 
         for i in range(self.N_AGENTS):
@@ -285,9 +280,11 @@ class MaxEntIRL():
                 p_svf = feat_map.T.dot(svf)  
 
                 relevance = self.create_relevance(col_count)
-                self.update_expert(relevance=relevance, use_rank=False, update_rate=1.0); # エキスパート行動の生成
+                self.update_expert(relevance=relevance, update_rate=1.0)
                 grad = self.agents[i].feature_expert - p_svf
                 theta[i] += lr * grad
+
+                
                 theta[i] = np.round(theta[i], 4)
                 self.reward_func[i] = feat_map.dot(theta[i].T)
 
@@ -302,6 +299,7 @@ class MaxEntIRL():
                         sum_col += 1
                 col_greedy[i].append(sum_col)
             agent_memory.append(copy.deepcopy(self.inner_loop.archive.count_memory))
+            rank_hist.append(self.create_rank())
     
             #print("Memory")
             #self.inner_loop.archive.print_count_memory()
@@ -317,6 +315,7 @@ class MaxEntIRL():
             "col_count" : col_count,
             "col_greedy" : col_greedy,
             "traj_gif" : self.inner_loop.traj_gif, 
+            "rank" : rank_hist, 
             "agents" : self.agents
             }
         
