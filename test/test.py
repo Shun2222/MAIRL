@@ -1,13 +1,16 @@
 from MAIRL import *
 def run():
     dir=[
+    "Free-order",
     "Free-no-order",
     "Min-col-rate",
+    "Free-order-prop",
+    "Free-no-order-prop",
     "Min-col-rate-prop",
     ]
 
     seed = 12
-    N_seed = 25
+    N_seed = 30
 
     file=r"D:\graduation\graduation_datas\large-cycle\SumExpert/"
     plt.figure()
@@ -31,6 +34,7 @@ def run():
         data = np.array(data)
         m = data.mean(axis=0)
         std = data.std(axis=0)  
+        print(f"std:{np.mean(std)}")
         plt.fill_between(np.arange(len(ave_step)), m+std, m-std, alpha=0.2)
         plt.plot(np.arange(len(ave_step)), m, label=d)
         al+=1
