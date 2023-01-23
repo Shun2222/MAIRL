@@ -6,6 +6,7 @@ import matplotlib.patches as patches
 import seaborn as sns
 import datetime
 import os
+import copy
 import numpy as np
 from MAIRL.environment import *
 from MAIRL.libs.traj_util import *
@@ -62,7 +63,7 @@ def arrow_plot(data, actions, state_size, file_name="Non", folder="./", save=Tru
         plt.show()
     plt.close()
 
-def trajs_plot(trajs, state_size, file_name="Non", folder="./", save=True, show=False, title=""):
+def trajs_plot_overlap(trajs, state_size, file_name="Non", folder="./", save=True, show=False, title=""):
     action_vecs = [[] for _ in range(len(trajs))]
     for i in range(len(trajs)):
         action_vecs[i]  = traj_to_action_vecs(trajs[i], state_size)
@@ -88,6 +89,68 @@ def trajs_plot(trajs, state_size, file_name="Non", folder="./", save=True, show=
             a = action_vecs[i][s]
             y, x = divmod(s, state_size[1])
             ax.arrow(x+0.5, state_size[0]-1-y+0.5, a[1]*0.3, -a[0]*0.3, color=colorVal, head_width=0.2, head_length=0.2)
+    file_path = make_path(folder, file_name)
+    if save:
+        plt.savefig(file_path)
+    if show:
+        plt.show()
+    plt.close()
+
+def trajs_plot(trajs, state_size, file_name="Non", folder="./", save=True, show=False, title=""):
+    action_vecs = [[] for _ in range(len(trajs))]
+    for i in range(len(trajs)):
+        action_vecs[i]  = traj_to_action_vecs(trajs[i], state_size)
+    fig, ax = plt.subplots(nrows=1, ncols=1, figsize = [8,8])
+    ax.set_title(title)
+    ax.grid(True)
+    ax.set_xticks(np.arange(state_size[1]+1))
+    ax.set_yticks(np.arange(state_size[0]+1))
+    ax.set_xlim(0, state_size[1])
+    ax.set_ylim(0, state_size[0])
+    cmap = plt.cm.jet
+    cNorm  = colors.Normalize(vmin=0, vmax=len(trajs))
+    scalarMap = cmx.ScalarMappable(norm=cNorm,cmap=cmap)
+    xya = []
+    colorVals = []
+    for i in range(len(trajs)):
+        colorVal = scalarMap.to_rgba(i)
+        y, x = divmod(trajs[i][0], state_size[1])
+        c = patches.Circle( xy=(x+0.5+0.35, state_size[0]-1-y+0.5+0.35), radius=0.1, color=colorVal)
+        ax.text(x+0.5+0.25, state_size[0]-1-y+0.5+0.25, str(i), size=8)
+        ax.add_patch(c)
+        for s in range(state_size[0]*state_size[1]):
+            if all(action_vecs[i][s]==[0,0]):
+                continue
+            a = action_vecs[i][s]
+            y, x = divmod(s, state_size[1])
+            x2 = x+0.5
+            y2 = state_size[0]-1-y+0.5
+            delta = 0.1
+            while [x2,y2, a[0], a[1]] in xya:
+                if a[0]!=0:
+                    x2 += delta
+                    if x2-x>=1:
+                        x2 = x + 0.5
+                        delta = -0.1
+                    if x-x2>=1:
+                        x2 = x+0.5
+                        break
+                else:
+                    y2 += delta
+                    if y2-y>=1:
+                        y2 = y + 0.5
+                        delta = -0.1
+                    if y-y2>=1:
+                        y2 = y+0.5
+                        break
+            xya.append([x2, y2, a[0], a[1]])
+            colorVals.append(colorVal)
+    for i in range(len(xya)):
+        x = xya[i][0]
+        y = xya[i][1]
+        a = [xya[i][2], xya[i][3]]
+        colorVal = colorVals[i]
+        ax.arrow(x, y, a[1]*0.3, -a[0]*0.3, color=colorVal, head_width=0.2, head_length=0.2)
     file_path = make_path(folder, file_name)
     if save:
         plt.savefig(file_path)
@@ -183,3 +246,15 @@ def plot_steps_seeds(save_dirs, label=""):
     plt.savefig(save_dirs[0]+"/"+fileName) 
     plt.close()
 
+"""
+my env minimum mean step 
+def calc(n):
+  sum1 = 0
+  sum2 = 0
+  for i in range(2, n, 2):
+    sum1 += (2*i-1)*(4*i-4)
+    sum2 += 4*i-4
+  print(f'{sum1}/{sum2} = {sum1/sum2}')
+  sum1 += 2*n-1
+  sum2 += 1
+  print(f'{sum1}/{sum2} = {sum1/sum2}')"""

@@ -1,8 +1,10 @@
 from MAIRL import *
 def run():
     dir=[
+    "Free-order",
     "Free-no-order",
     "Min-col-rate",
+    "Min-col-rate-prop",
     ]
 
     seed = 12

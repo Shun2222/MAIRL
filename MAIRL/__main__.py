@@ -153,7 +153,8 @@ if __name__ == "__main__":
             print("#################Agent{}#################".format(i))
             env[i].print_env()
             experts[i][0] += env[i].create_expert()
-            print("create expert{}:{}\n".format(i, experts[i][0]))   
+            print("create expert{}:{}\n".format(i, experts[i][0]))  
+
     elif ENV=='MYENV':
         STATE_SIZE = json.loads(config_ini.get("ENV", "STATE_SIZE")) 
         agents = create_my_env(STATE_SIZE)
@@ -165,6 +166,7 @@ if __name__ == "__main__":
             env[i].print_env()
             print("expert{}:{}\n".format(i, agents[i][2]))  
             experts.append([agents[i][2]])
+
     else:
         experts = []
         start_goal_position = []
