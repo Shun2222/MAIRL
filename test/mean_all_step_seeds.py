@@ -5,9 +5,9 @@ def run():
     ]
 
     seed = 12
-    N_seed = 25
+    N_seed = 30
 
-    file=r"D:\graduation\graduation_datas\large-cycle\SumExpert/"
+    file=r"D:\graduation\graduation_datas\large-cycle\PropExpert/"
     plt.figure()
     plt.xlabel("Seed number")
     plt.ylabel("Mean step")

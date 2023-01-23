@@ -1,14 +1,14 @@
 from MAIRL import *
 def run():
     dir=[
-    "Free-no-order",
-    "Min-col-rate",
+    "sum",
+    "prop"
     ]
 
     seed = 12
-    N_seed = 25
+    N_seed = 30
 
-    file=r"D:\graduation\graduation_datas\large-cycle\SumExpert/"
+    file=r"D:\graduation\graduation_datas\cycle-env/Min-col-rate/"
     plt.figure()
     plt.xlabel("iteration")
     plt.ylabel("step")
@@ -19,7 +19,7 @@ def run():
             fileDir = file+d+"/Seed_No"+str(i)+"/logs.pickle"
             log = pickle_load(fileDir)
             step = log["step_in_multi_hist"]
-            m_step = np.mean(step, axis=0)[1:]
+            m_step = np.mean(step, axis=0)[1:20]
             ave_step = []
             for ite in np.arange(len(m_step)):
                 pre = ite-5 if ite-5>=0 else 0

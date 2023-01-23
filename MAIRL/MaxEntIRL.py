@@ -285,7 +285,7 @@ class MaxEntIRL():
                 p_svf = feat_map.T.dot(svf)  
 
                 relevance = self.create_relevance(col_count)
-                self.update_expert(relevance=relevance, use_rank=False, update_rate=1.0); # エキスパート行動の生成
+                self.update_expert(relevance=relevance, use_rank=False, update_rate=1.0) # エキスパート行動の生成
                 grad = self.agents[i].feature_expert - p_svf
                 theta[i] += lr * grad
                 theta[i] = np.round(theta[i], 4)

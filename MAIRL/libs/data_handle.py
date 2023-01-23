@@ -14,9 +14,14 @@ def mean_pre_nex(log_file, key, num_pre=5, num_nex=5):
     log = pickle_load(log_file)
     data = log[key]
     m_data = np.mean(data, axis=0)[1:]
+    ave_data = pre_nex(m_data, num_pre, num_nex)
+    return ave_data  
+
+def pre_nex(data, num_pre=5, num_nex=5):
+    data = np.array(data)
     ave_data = []
-    for i in np.arange(len(m_data)):
+    for i in np.arange(len(data)):
         pre = i-num_pre if i-num_pre>=0 else 0
-        nex = i+num_nex if i+num_nex<len(m_data) else len(m_data)-1
-        ave_data += [np.mean(m_data[pre:nex])]
+        nex = i+num_nex if i+num_nex<len(data) else len(data)-1
+        ave_data += [np.mean(data[pre:nex])]
     return ave_data  

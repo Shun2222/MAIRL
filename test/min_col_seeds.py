@@ -9,13 +9,13 @@ import datetime
 
 def run():
     dir=[
-    "16agents",
+    "Min-col-rate",
     ]
 
     seed = 12
     N_seed = 30
 
-    file="logs/MYENV/"
+    file=r"D:\graduation\graduation_datas\large-cycle\PropExpert/"
     plt.xlabel('Seed number')
     plt.ylabel('Collision number')
     x = []
