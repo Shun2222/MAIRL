@@ -141,13 +141,15 @@ class MaxEntIRL():
             str_traj = array_to_str(t)
             col = 0
             non_col = 0
-            non_col_rate = 1.0
-            for i in lower_rank:
+            non_col_rate = 0.0
+            for i in range(self.N_AGENTS):
+                if agent_num==i:
+                    continue
                 if count_memory[agent_num][i][str_traj]:
                     col = count_memory[agent_num][i][str_traj][0]
                     non_col = count_memory[agent_num][i][str_traj][1]
-                    non_col_rate *= non_col/(col+non_col) if col+non_col!=0 else 1.0
-                    #print(f'Agent{agent_num}{i}: col non_col col_rate traj {col} : {non_col} : {non_col_rate} : {str_traj}')
+                    non_col_rate += non_col/(col+non_col) if col+non_col!=0 else 1.0
+            non_col_rate /= self.N_AGENTS
             if not max_col:
                 max_col = non_col_rate
                 traj = str_to_array(str_traj)
@@ -257,7 +259,31 @@ class MaxEntIRL():
                 col_greedy[i].append(sum_col)
             agent_memory.append(copy.deepcopy(self.inner_loop.archive.count_memory))
             rank_hist.append(self.create_rank())
-    
+            if iteration%100==0 and iteration!=0:
+                logs = {
+                    "rewards" : self.reward_func,
+                    "feat_experts" : [self.agents[i].feature_expert for i in range(self.N_AGENTS)],
+                    "step_hist" : step_hist,
+                    "step_in_multi_hist" : step_in_multi_hist,
+                    "expert_gifs" : expert_gifs,
+                    "agent_memory" : agent_memory,
+                    "col_count" : col_count,
+                    "col_greedy" : col_greedy,
+                    "traj_gif" : self.inner_loop.traj_gif, 
+                    "rank" : rank_hist, 
+                    "agents" : self.agents
+                    }
+                make_path("./logs/",file_name=f"logs-{iteration}", extension=".pickle")
+                with open(os.path.join("./logs/", f"logs-iter{iteration}-date{str(datetime.datetime.now().strftime('%Y-%m-%d-%H-%M')) }.pickle"), mode='wb') as f:
+                    pickle.dump(logs, f)
+                step_hist = [[] for _ in range(self.N_AGENTS)]
+                step_in_multi_hist = [[] for _ in range(self.N_AGENTS)]
+                expert_gifs = [make_gif() for _ in range(self.N_AGENTS)]
+                agent_memory = []
+                col_count = [np.zeros(self.N_AGENTS) for _ in range(self.N_AGENTS)]
+                col_greedy = [[] for _ in range(self.N_AGENTS)]
+                rank_hist = []
+                logs = {}    
             #print("Memory")
             #self.inner_loop.archive.print_count_memory()
             #self.inner_loop.archive.clear_memory()

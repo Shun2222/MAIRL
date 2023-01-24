@@ -209,11 +209,11 @@ if __name__ == "__main__":
         np.random.seed(seed)
         feat_map = np.eye(irl.N_STATES)    
         logs= irl.maxent_irl(irl.N_STATES,irl.N_STATES,feat_map, experts, LEARNING_RATE, GAMMA, N_ITERS)
-        save_dir = json.loads(config_ini.get("LOG", "SAVE_DIR"))
-        save_dir = save(logs, seed, N_ITERS, STATE_SIZE, N_AGENTS, ENV, experts, save_dir)
-        save_dirs.append(save_dir)
+        #save_dir = json.loads(config_ini.get("LOG", "SAVE_DIR"))
+        #save_dir = save(logs, seed, N_ITERS, STATE_SIZE, N_AGENTS, ENV, experts, save_dir)
+        #save_dirs.append(save_dir)
 
     with open(os.path.join(save_dir, "env.pickle"), mode='wb') as f:
         pickle.dump(env, f)
-    if N_Seeds!=1:
-        plot_steps_seeds(save_dirs, label="")
+    #if N_Seeds!=1:
+    #    plot_steps_seeds(save_dirs, label="")
