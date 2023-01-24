@@ -11,13 +11,7 @@ from MAIRL.environment import *
 from MAIRL.libs.traj_util import *
 from MAIRL.libs.data_handle import *
 
-def make_path(save_dir="./", file_name="Non", extension=".png"):
-    if not os.path.exists(save_dir):
-        os.mkdir(save_dir)
-    if file_name == "Non":
-        file_name = str(datetime.datetime.now().strftime('%Y-%m-%d %H-%M-%S-%f')) 
-    file_name += extension
-    return os.path.join(save_dir, file_name)
+
 
 def plot_on_grid(values, state_size, file_name="Non", folder="./", set_annot=True, save=True, show=False, title=""):
     values = np.array(values)
