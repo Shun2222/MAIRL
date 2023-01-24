@@ -1,17 +1,13 @@
 from MAIRL import *
 def run():
     dir=[
-    "alpha02",
-    "alpha04",
-    "alpha06",
-    "alpha08",
-    "alpha10",
+    "200exist17-fix2",
     ]
 
     seed = 12
     N_seed = 10
 
-    file=r"D:\graduation\graduation_datas\cycle_env/Min-col-rate/"
+    file=r"logs/MYENV/"
     plt.figure()
     plt.xlabel("iteration")
     plt.ylabel("step")
@@ -36,7 +32,7 @@ def run():
         plt.plot(np.arange(len(ave_step)), m, label=d)
         al+=1
 
-    fileName = file+"step_in_multi_mean"+'.png'
+    fileName = file+d+"step_in_multi_mean"+'.png'
     plt.legend()
     plt.savefig(fileName) 
     plt.close()
