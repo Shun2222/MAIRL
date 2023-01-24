@@ -258,7 +258,7 @@ class MaxEntIRL():
                 col_greedy[i].append(sum_col)
             agent_memory.append(copy.deepcopy(self.inner_loop.archive.count_memory))
             rank_hist.append(self.create_rank())
-            if (iteration+1)%5==0:
+            if (iteration+1)%100==0:
                 logs = {
                     "rewards" : self.reward_func,
                     "feat_experts" : [self.agents[i].feature_expert for i in range(self.N_AGENTS)],
