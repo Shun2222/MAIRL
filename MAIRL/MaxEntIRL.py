@@ -302,7 +302,7 @@ class MaxEntIRL():
                         sum_col += 1
                 col_greedy[i].append(sum_col)
             agent_memory.append(copy.deepcopy(self.inner_loop.archive.count_memory))
-            if iteration%100==0 and iteration!=0:
+            if (iteration+1)%100==0:
                 logs = {
                     "rewards" : self.reward_func,
                     "feat_experts" : [self.agents[i].feature_expert for i in range(self.N_AGENTS)],
@@ -326,21 +326,5 @@ class MaxEntIRL():
                 col_greedy = [[] for _ in range(self.N_AGENTS)]
                 rank_hist = []
                 logs = {}
-            #print("Memory")
-            #self.inner_loop.archive.print_count_memory()
-            #self.inner_loop.archive.clear_memory()
-
-        logs = {
-            "rewards" : self.reward_func,
-            "feat_experts" : [self.agents[i].feature_expert for i in range(self.N_AGENTS)],
-            "step_hist" : step_hist,
-            "step_in_multi_hist" : step_in_multi_hist,
-            "expert_gifs" : expert_gifs,
-            "agent_memory" : agent_memory,
-            "col_count" : col_count,
-            "col_greedy" : col_greedy,
-            "traj_gif" : self.inner_loop.traj_gif, 
-            "agents" : self.agents
-            }
         
         return logs
