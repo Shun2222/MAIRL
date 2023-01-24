@@ -59,3 +59,9 @@ def traj_to_action_vecs(traj, state_size):
         action_vecs[traj[i]] = ns-s
     return action_vecs
 
+def calc_state_visition_count(n_state, trajs):
+    features = np.zeros(n_state)
+    for t in trajs:
+        for s in t:
+            features[s] += 1
+    return features
