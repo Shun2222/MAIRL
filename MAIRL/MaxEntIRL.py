@@ -246,7 +246,7 @@ class MaxEntIRL():
                 step_in_multi_hist = [[] for _ in range(self.N_AGENTS)]
                 expert_gifs = [make_gif() for _ in range(self.N_AGENTS)]
                 agent_memory = []
-                col_count = [np.zeros(self.N_AGENTS) for _ in range(self.N_AGENTS)]
+                #col_count = [np.zeros(self.N_AGENTS) for _ in range(self.N_AGENTS)]
                 col_greedy = [[] for _ in range(self.N_AGENTS)]
                 rank_hist = []
                 logs = {}    
