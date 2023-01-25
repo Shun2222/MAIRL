@@ -86,37 +86,6 @@ class MaxEntIRL():
     """ sum collision_num/compair_num * traj """
     """ただの行動と組量ではなく、状態到達頻度確率であることに注意 ただの入れ替えではなく、update方式も検討"""
 
-    def merge_feature(self, agent_num):
-        count_memory = self.inner_loop.archive.count_memory
-        opt_traj_archive = self.inner_loop.archive.opt_traj_archive
-
-        if not opt_traj_archive[agent_num]:
-            feature = self.calculate_state_visition_count(self.agents[agent_num].original_expert)/len(self.agents[agent_num].original_expert)
-            return feature
-
-        max_col = None
-        traj = None
-        for t in opt_traj_archive[agent_num]:
-            str_traj = array_to_str(t)
-            col = 0
-            non_col = 0
-            non_col_rate = 1.0
-            for i in range(self.N_AGENTS):
-                if count_memory[agent_num][i][str_traj]:
-                    col = count_memory[agent_num][i][str_traj][0]
-                    non_col = count_memory[agent_num][i][str_traj][1]
-                    non_col_rate += non_col/(col+non_col) if col+non_col!=0 else 1.0
-            non_col_rate /= self.N_AGENTS
-            if not max_col:
-                max_col = non_col_rate
-                traj = str_to_array(str_traj)
-            else:
-                if max_col < non_col_rate:
-                    max_col = non_col_rate
-                    traj = str_to_array(str_traj)
-        self.agents[agent_num].best_traj = copy.deepcopy(traj)
-        feature = self.calculate_state_visition_count([traj])
-        return feature
 
     def merge_feature_by_rank(self, agent_num):
         count_memory = self.inner_loop.archive.count_memory
@@ -280,7 +249,7 @@ class MaxEntIRL():
                 step_in_multi_hist = [[] for _ in range(self.N_AGENTS)]
                 expert_gifs = [make_gif() for _ in range(self.N_AGENTS)]
                 agent_memory = []
-                col_count = [np.zeros(self.N_AGENTS) for _ in range(self.N_AGENTS)]
+                #col_count = [np.zeros(self.N_AGENTS) for _ in range(self.N_AGENTS)]
                 col_greedy = [[] for _ in range(self.N_AGENTS)]
                 rank_hist = []
                 logs = {}    
