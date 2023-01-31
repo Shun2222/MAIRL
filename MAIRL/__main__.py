@@ -209,7 +209,7 @@ if __name__ == "__main__":
         np.random.seed(seed)
         feat_map = np.eye(irl.N_STATES)
         logger = Logger()
-        logger.set_save_dir(f"./logs/seed{seed}/")    
+        logger.set_save_dir(f"./logs/fixed/seed{seed}/")    
         irl.maxent_irl(irl.N_STATES,irl.N_STATES,feat_map, experts, LEARNING_RATE, GAMMA, N_ITERS, logger)
         #save_dir = json.loads(config_ini.get("LOG", "SAVE_DIR"))
         #save_dir = save(logs, seed, N_ITERS, STATE_SIZE, N_AGENTS, ENV, experts, save_dir)

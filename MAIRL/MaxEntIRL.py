@@ -284,7 +284,7 @@ class MaxEntIRL():
                     "agents" : self.agents
                     }
                 logger.set_datas(logs)
-                logger.dump(f"fixed/logs{iteration}.pickle")
+                logger.dump(f"logs{iteration}.pickle")
                 step_hist = [[] for _ in range(self.N_AGENTS)]
                 step_in_multi_hist = [[] for _ in range(self.N_AGENTS)]
                 expert_gifs = [make_gif() for _ in range(self.N_AGENTS)]
