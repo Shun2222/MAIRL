@@ -112,14 +112,14 @@ class MaxEntIRL():
             col = 0
             non_col = 0
             non_col_rate = 0.0
-            for i in range(self.N_AGENTS):
+            for i in lower_rank:
                 if agent_num==i:
                     continue
                 if count_memory[agent_num][i][str_traj]:
                     col = count_memory[agent_num][i][str_traj][0]
                     non_col = count_memory[agent_num][i][str_traj][1]
                     non_col_rate += non_col/(col+non_col) if col+non_col!=0 else 1.0
-            non_col_rate /= self.N_AGENTS
+            non_col_rate /= len(lower_rank)
             if not max_col:
                 max_col = non_col_rate
                 traj = str_to_array(str_traj)
@@ -256,5 +256,28 @@ class MaxEntIRL():
             #print("Memory")
             #self.inner_loop.archive.print_count_memory()
             #self.inner_loop.archive.clear_memory()
-        
+        if agent_memory!=[]:
+            logs = {
+                "rewards" : self.reward_func,
+                "feat_experts" : [self.agents[i].feature_expert for i in range(self.N_AGENTS)],
+                "step_hist" : step_hist,
+                "step_in_multi_hist" : step_in_multi_hist,
+                "expert_gifs" : expert_gifs,
+                "agent_memory" : agent_memory,
+                "col_count" : col_count,
+                "col_greedy" : col_greedy,
+                "traj_gif" : self.inner_loop.traj_gif, 
+                "rank" : rank_hist, 
+                "agents" : self.agents
+                }
+            logger.set_datas(logs)
+            logger.dump(f"logs{iteration}.pickle")
+            step_hist = [[] for _ in range(self.N_AGENTS)]
+            step_in_multi_hist = [[] for _ in range(self.N_AGENTS)]
+            expert_gifs = [make_gif() for _ in range(self.N_AGENTS)]
+            agent_memory = []
+            #col_count = [np.zeros(self.N_AGENTS) for _ in range(self.N_AGENTS)]
+            col_greedy = [[] for _ in range(self.N_AGENTS)]
+            rank_hist = []
+            logs = {}
         return logs
