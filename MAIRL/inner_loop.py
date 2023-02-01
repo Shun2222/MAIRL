@@ -28,7 +28,7 @@ class Q_learning():
             self.RewardFunc[i] = env[i].reward_func # envのrewardfuncに代入
             
         self.N_ROW = env[0].nrow #env row
-        self.N_COL = env[0].ncol #env col
+        self.N_COL = env[1].ncol #env col
         self.N_AGENTS = N_AGENTS
         self.N_STATES = self.N_ROW * self.N_COL # state size
         self.N_ACTIONS = len(env[0]._actions) # 辞書式　"UP":0

@@ -119,24 +119,23 @@ def print_traj0(agent_num, count_memory, state_size=None, n_state=None, sum_rate
 
 
 def run():
-    dir=[
-    "Min-col-rate-uprate02",
-    ]
-
+    file=r"C:\Users\messi\graduation/"
+    #dirs = [r"min-col-sum", r"min-col-pi", "free-no-order-sum", r"free-no-order-pi", r"free-no-order-prop"]#, r"min-col-prop"]#r"free-no-order-sum", r"free-no-order-pi", r"free-no-order-prop"]#r"min-col-sum", r"min-col-pi", r"min-col-prop"]#, r"free-no-order-sum", r"free-no-order-pi", r"free-no-order-prop"]
+    dirs = ["free-no-order-sum"]
+    labels = ["TA-MAIRL(sum)", "TA-MAIRL(prod)", "TFA-MAIRL(sum)", "TFA-MAIRL(prod)", "TRA-MAIRL",]
+    seed_file = "/MAIRL/logs/seed"
+    seed = 12
+    N_seed = 1
     state_size = [6, 6]
     n_state = state_size[0]*state_size[1]
-    seed = 20
-    N_seed = 1
-    agent = 1
+    agent = 8
     str_trajs = []#["19,13,7,8,9,10,16"] 
 
-    file=r"D:\graduation\graduation_datas\large-cycle\SumExpert/"
-    
-    for d in dir:
+    for d in dirs:
         data = []
         for i in range(seed, seed+N_seed):
-            fileDir = file+d+"/Seed_No"+str(i)+"/logs.pickle"
+            fileDir = file+d+seed_file+str(i)+"/logs499.pickle"
             logs = pickle_load(fileDir)
             m = logs["agent_memory"][-1]
             print(f"##########Agent{agent}##########")
-            print_traj1(agent, m, state_size=state_size, n_state=n_state, str_trajs=str_trajs)
+            print_traj0(agent, m, state_size=state_size, n_state=n_state, str_trajs=str_trajs)

@@ -8,22 +8,24 @@ import seaborn as sns
 import datetime
 
 def run():
-    dir=[
-    "16agents",
-    ]
 
+    n_iter = 2000
+    file=r"C:\Users\messi\graduation/"
+    #dirs = [r"min-col-sum", r"min-col-pi", "free-no-order-sum", r"free-no-order-pi", r"free-no-order-prop"]#, r"min-col-prop"]#r"free-no-order-sum", r"free-no-order-pi", r"free-no-order-prop"]#r"min-col-sum", r"min-col-pi", r"min-col-prop"]#, r"free-no-order-sum", r"free-no-order-pi", r"free-no-order-prop"]
+    dirs = ["free-no-order-sum"]
+    labels = ["TA-MAIRL(sum)", "TA-MAIRL(prod)", "TFA-MAIRL(sum)", "TFA-MAIRL(prod)", "TRA-MAIRL",]
+    seed_file = "/MAIRL/logs/seed"
     seed = 12
-    N_seed = 30
+    N_seed = 15
 
-    file="logs/MYENV/"
     plt.xlabel('Seed number')
     plt.ylabel('Collision number')
     x = []
     y = []
-    for d in dir:
+    for d in dirs:
         data = []
         for i in range(seed, seed+N_seed):
-            fileDir = file+d+"/Seed_No"+str(i)+"/logs.pickle"
+            fileDir = file+d+seed_file+str(i)+"/logs.pickle"
             logs = pickle_load(fileDir)
             col = logs['col_greedy']
             min_col = np.min(np.max(np.array(col), axis=0))
