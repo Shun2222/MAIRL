@@ -202,7 +202,7 @@ if __name__ == "__main__":
     state = [str(i) for i in range(len(env[0].states))]
     
     """学習"""
-    save_dir = "./logs/env10"
+    save_dir = "./logs/"
     if not os.path.exists(save_dir):
         os.mkdir(save_dir)
     for count in range(N_Seeds):

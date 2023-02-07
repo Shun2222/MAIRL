@@ -39,7 +39,7 @@ class Q_learning():
         self.ALPHA       = float(config_ini.get(Q_PARAM, "ALPHA")) # alpha
         self.MAX_STEP = self.N_STATES
         
-        self.archive = Archive(N_AGENTS, config_ini);
+        #self.archive = Archive(N_AGENTS, config_ini);
         self.is_col_agents = []
         self.traj_gif = make_gif()
     
@@ -188,9 +188,9 @@ class Q_learning():
                     history[i] = [-1]*self.MAX_STEP
                 if agents[i].status == 'learned':
                     history[i] = copy.deepcopy(agents[i].greedy_act)
-            self.archive.archive(history, experts)
+            #self.archive.archive(history, experts)
 
-        self.archive.count()
+        #self.archive.count()
         self.greedy_act_step(q_table, agents)
         return q_table
     
