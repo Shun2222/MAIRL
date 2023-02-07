@@ -2,10 +2,10 @@ from MAIRL import *
 
 n_iter = 2000
 file=r"C:\Users\messi\graduation/"
-dirs = [r"min-col-sum", r"min-col-pi", "free-no-order-sum", "free-no-order-pi", "min-col-prop-2"]
+dirs = [r"min-col-sum", r"min-col-pi"]#, "free-no-order-sum", "min-col-prop-2"]
 #dirs = [r"convention/id/MAIRL-Conventional", r"convention/np/MAIRL-Conventional"]
-seed_file = r"/MAIRL/logs\seed"
-labels = ["TC-MAIRL(sum)", "TC-MAIRL(prod)", "FTC-MAIRL(sum)", "FTC-MAIRL(prod)", "WTC-MAIRL"]
+seed_file = r"/MAIRL/logs/env6/seed"
+labels = ["TC-MAIRL(sum)", "TC-MAIRL(prod)", "FTC-MAIRL", "WTC-MAIRL"]
 #labels = ["A-MAIRL(id)", "A-MAIRL(np)"]
 seed = 12
 n_seed = 15
@@ -19,8 +19,8 @@ def run():
         data = []
         print(f"Loading data in {d} now")
         for i in range(seed, seed+n_seed):
-            print(f"seed{i}")
-            fileDir = file+dirs[d]+seed_file+str(i)+"/logs.pickle"
+            #print(f"seed{i}")
+            fileDir = file+dirs[d]+seed_file+str(i)+"/logs49.pickle"
             log = pickle_load(fileDir)
             step = log["step_in_multi_hist"]
             m_step = np.mean(step, axis=0)[1:1999]
@@ -31,7 +31,7 @@ def run():
                 ave_step += [np.mean(m_step[pre:nex])]
             data.append(ave_step)
         data = np.array(data)
-        m = data.mean(axis=0)
+        m = data.mean(axis=0)-1
         std = data.std(axis=0)  
         print(f"std:{np.mean(std)}")
         plt.fill_between(np.arange(len(ave_step)), m+std, m-std, alpha=0.2)

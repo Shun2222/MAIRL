@@ -220,7 +220,6 @@ class MaxEntIRL():
         col_greedy = [[] for _ in range(self.N_AGENTS)]
         rank_hist = []
 
-
         for i in range(self.N_AGENTS):
             trans_probs[i] = self.trans_mat(self.env[i]) # 状態遷移map
             self.agents[i].original_expert = experts[i]
@@ -282,5 +281,30 @@ class MaxEntIRL():
                 col_greedy = [[] for _ in range(self.N_AGENTS)]
                 rank_hist = []
                 logs = {}
-    
+
+
+        if agent_memory!=[]:
+            logs = {
+                "rewards" : self.reward_func,
+                "feat_experts" : [self.agents[i].feature_expert for i in range(self.N_AGENTS)],
+                "step_hist" : step_hist,
+                "step_in_multi_hist" : step_in_multi_hist,
+                "expert_gifs" : expert_gifs,
+                "agent_memory" : agent_memory,
+                "col_count" : col_count,
+                "col_greedy" : col_greedy,
+                "traj_gif" : self.inner_loop.traj_gif, 
+                "rank" : rank_hist, 
+                "agents" : self.agents
+                }
+            logger.set_datas(logs)
+            logger.dump(f"logs{iteration}.pickle")
+            step_hist = [[] for _ in range(self.N_AGENTS)]
+            step_in_multi_hist = [[] for _ in range(self.N_AGENTS)]
+            expert_gifs = [make_gif() for _ in range(self.N_AGENTS)]
+            agent_memory = []
+            #col_count = [np.zeros(self.N_AGENTS) for _ in range(self.N_AGENTS)]
+            col_greedy = [[] for _ in range(self.N_AGENTS)]
+            rank_hist = []
+            logs = {}
         return logs

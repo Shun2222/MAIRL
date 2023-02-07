@@ -1,12 +1,11 @@
 from MAIRL import *
-import gc
 
-n_iter = 2000
+n_iter = 50
 file=r"C:\Users\messi\graduation/"
-dirs = [r"min-col-prop-2"]#r"free-no-order-prop"r"min-col-sum", r"min-col-pi", r"min-col-prop"]
+dirs = [r"min-col-sum", r"min-col-pi", "free-no-order-sum", "min-col-prop-2"]
 #dirs = [r"convention/id/MAIRL-Conventional", r"convention/np/MAIRL-Conventional"]
-seed_file = r"/MAIRL/logs\seed"
-labels = ["TA-MAIRL(sum)", "TA-MAIRL(prod)", "TFA-MAIRL(sum)", "TFA-MAIRL(prod)", "TRA-MAIRL"]
+seed_file = r"/MAIRL/logs/env6/seed"
+labels = ["TC-MAIRL(sum)", "TC-MAIRL(prod)", "FTC-MAIRL", "WTC-MAIRL"]
 #labels = ["A-MAIRL(id)", "A-MAIRL(np)"]
 seed = 12
 n_seed = 15

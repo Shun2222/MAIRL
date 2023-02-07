@@ -28,10 +28,11 @@ def plot_on_grid(values, state_size, file_name="Non", folder="./", set_annot=Tru
     plt.close()
     return img
 
-def ax_heatmap(values, state_size, ax, set_annot=True, cbar=True, square=True, label_size=6, title=""):
+def ax_heatmap(values, state_size, ax, decimals=2, set_annot=True, cbar=True, square=True, label_size=6, title=""):
     values = np.array(values)
     if len(values.shape) < 2:
         values = values.reshape(state_size)
+    values = np.round(values, decimals=decimals)
     sns.heatmap(values, ax=ax, annot=set_annot,cbar=cbar,square=square,cmap='PuRd')  
     ax.tick_params(axis='x', labelsize=label_size)
     ax.tick_params(axis='y', labelsize=label_size)

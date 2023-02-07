@@ -65,3 +65,6 @@ def calc_state_visition_count(n_state, trajs):
         for s in t:
             features[s] += 1
     return features
+
+def states_to_feature(n_state, traj):
+    return calc_state_visition_count(n_state, [traj])
